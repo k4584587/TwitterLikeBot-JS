@@ -14,7 +14,7 @@ async function scheduleConfig(apiURL, twitterId) {
 
         try {
             const response = await axios.get(
-                `${apiURL}/twitter/likes?twitterId=${twitterId}&type=down&size=`
+                `${apiURL}/twitter/likes?twitterId=${twitterId}&type=down&size=50`
             );
 
             console.log(response.data);
@@ -28,7 +28,7 @@ async function scheduleConfig(apiURL, twitterId) {
 
         try {
             const response = await axios.get(
-                `${apiURL}/twitter/likes?twitterId=${twitterId}&type=down&size=`
+                `${apiURL}/twitter/likes?twitterId=${twitterId}&type=down&size=50`
             );
 
             console.log(response.data);
