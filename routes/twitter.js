@@ -58,7 +58,8 @@ router.get('/likes', async (req, res) => {
                         expansions: ['attachments.media_keys'],
                         'media.fields': ['url'],
                     });
-                    const mediaResult = resultTweet.includes?.media;
+                    const mediaResult = JSON.parse(JSON.stringify(resultTweet.includes?.media ?? {}));
+
                     if (mediaResult) {
 
                         const url = mediaResult[0].url;
@@ -109,41 +110,48 @@ router.get('/likes', async (req, res) => {
                     'media.fields': ['url']
                 });
 
-                const mediaResult = JSON.parse(JSON.stringify(resultTweet.includes.media));
+                const mediaResult = JSON.parse(JSON.stringify(resultTweet.includes?.media ?? {}));
 
-                for (const r of mediaResult) {
-                    const url = r.url;
 
-                    if (url) {
-                        const fileName = url.replace(/^.*\//, '');
 
-                        const selectQuery = "SELECT * FROM NB_DOWNLOAD_LOG A WHERE A.url = ? AND A.fileName = ?";
+                if (mediaResult && mediaResult.length > 0) {
 
-                        let params = [url + "?name=orig", fileName];
+                    for (const r of mediaResult) {
+                        const url = r.url;
 
-                        db.get(selectQuery, params, async (err, row) => {
-                            if (err) {
-                                console.error(err.message);
-                            }
-                            if (row) {
-                                console.info(`this ${url} row with the same name and email already exists`);
-                            } else {
-                                await downloadURL.download(`${url}?name=orig`, `${IMAGE_DOWNLOAD_FOLDER}${fileName}`);
-                                const query = `insert into NB_DOWNLOAD_LOG(url, fileName)
-                                               values ('${url}?name=orig', '${fileName}')`;
-                                db.serialize();
-                                db.each(query);
-                            }
-                        });
-                    } else {
-                        console.error("Error: url is not defined");
-                    }
+                        if (url) {
+                            const fileName = url.replace(/^.*\//, '');
 
-                } //end if url
-                return mediaResult.map((media) => media.url);
+                            const selectQuery = "SELECT * FROM NB_DOWNLOAD_LOG A WHERE A.url = ? AND A.fileName = ?";
+
+                            let params = [url + "?name=orig", fileName];
+
+                            db.get(selectQuery, params, async (err, row) => {
+                                if (err) {
+                                    console.error(err.message);
+                                }
+                                if (row) {
+                                    console.info(`this ${url} row with the same name and email already exists`);
+                                } else {
+                                    await downloadURL.download(`${url}?name=orig`, `${IMAGE_DOWNLOAD_FOLDER}${fileName}`);
+                                    const query = `insert into NB_DOWNLOAD_LOG(url, fileName)
+                                                   values ('${url}?name=orig', '${fileName}')`;
+                                    db.serialize();
+                                    db.each(query);
+                                }
+                            });
+                        } else {
+                            console.error("Error: url is not defined");
+                        }
+
+                    } //end if url
+                    return mediaResult.map((media) => media.url);
+                }
+
             }));
 
-            const url = mediaUrls.flat();
+            const url = mediaUrls.flat().filter(Boolean);
+
             res.status(200).json({url});
 
         }
@@ -162,7 +170,8 @@ router.get('/likes', async (req, res) => {
                 'media.fields': ['url']
             });
 
-            const mediaResult = JSON.parse(JSON.stringify(resultTweet.includes.media));
+            const mediaResult = JSON.parse(JSON.stringify(resultTweet.includes?.media ?? {}));
+
 
             for (const r of mediaResult) {
                 const url = r.url;
