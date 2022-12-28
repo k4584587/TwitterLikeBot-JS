@@ -75,7 +75,7 @@ router.get('/likes', async (req, res) => {
                                     console.error(err.message);
                                 }
                                 if (row) {
-                                    console.info(`this ${url} row with the same name and email already exists`);
+                                    console.info(`this ${url} row with the same already exists`);
                                 } else {
                                     await downloadURL.download(`${url}?name=orig`, `${IMAGE_DOWNLOAD_FOLDER}${fileName}`);
                                     const query = `insert into NB_DOWNLOAD_LOG(url, fileName)
@@ -131,7 +131,7 @@ router.get('/likes', async (req, res) => {
                                     console.error(err.message);
                                 }
                                 if (row) {
-                                    console.info(`this ${url} row with the same name and email already exists`);
+                                    console.info(`this ${url} row with the same already exists`);
                                 } else {
                                     await downloadURL.download(`${url}?name=orig`, `${IMAGE_DOWNLOAD_FOLDER}${fileName}`);
                                     const query = `insert into NB_DOWNLOAD_LOG(url, fileName)
