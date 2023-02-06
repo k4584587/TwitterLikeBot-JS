@@ -6,8 +6,16 @@ services:
     build: .
     container_name: twitter-bot
     volumes:
-      - "./build:/home/needon/twitter/"
-      - "./photo:/photo"
+      - "/mnt/TwitterPhoto:/photo"
     ports:
       - "3001:3000"
     restart: always
+    environment:
+      - "API_KEY="
+      - "API_SECRET="
+      - "ACCESS_TOKEN=-"
+      - "ACCESS_SECRET="
+      - "IMAGE_DOWNLOAD_FOLDER=/photo"
+      - "DISCORD_BOT_TOKEN="
+      - "API_URL=" # ex) http://192.168.50.30:3001
+      - "TWITTER_ACCOUNT="

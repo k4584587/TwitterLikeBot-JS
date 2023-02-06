@@ -1,7 +1,10 @@
-FROM node
-WORKDIR /home/needon/twitter
+FROM node:14.21.2-slim
 
-COPY root* /
-RUN chmod -R +x /script
+WORKDIR /usr/src/app
+COPY package*.json yarn.lock ./
 
-CMD /script/run.sh ; sleep infinity
+RUN yarn --pure-lockfile
+
+COPY . .
+
+CMD [ "yarn", "start" ]
