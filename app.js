@@ -7,6 +7,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerFile = require('./swagger-output');
 const indexRouter = require('./routes/index');
 const twitterBotAPI = require('./routes/twitter');
+const authAPI = require('./routes/auth');
 const Discord = require('discord.js');
 const discordClient = new Discord.Client();
 const discordBot = require('./service/discord.js');
@@ -17,7 +18,7 @@ const { DISCORD_BOT_TOKEN, API_URL, TWITTER_ACCOUNT } = process.env;
 
 const app = express();
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 3001);
 
 // view engine setup
 require('dotenv').config();
@@ -52,6 +53,7 @@ db.serialize(() => {
 
 app.use('/', indexRouter);
 app.use('/twitter', twitterBotAPI);
+app.use('/auth/', authAPI);
 discordBot(discordClient, DISCORD_BOT_TOKEN, API_URL, TWITTER_ACCOUNT);
 scheduleConfig(API_URL, TWITTER_ACCOUNT);
 

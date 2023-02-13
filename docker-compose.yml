@@ -15,7 +15,7 @@ services:
       - "API_SECRET="
       - "ACCESS_TOKEN=-"
       - "ACCESS_SECRET="
-      - "IMAGE_DOWNLOAD_FOLDER=/photo"
+      - "IMAGE_DOWNLOAD_FOLDER=/photo/"
       - "DISCORD_BOT_TOKEN="
       - "API_URL=" # ex) http://192.168.50.30:3001
       - "TWITTER_ACCOUNT="
