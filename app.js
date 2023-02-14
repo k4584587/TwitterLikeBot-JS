@@ -42,7 +42,7 @@ const db = new sqlite3.Database('./needon.db', sqlite3.OPEN_READWRITE, (err) => 
 
 const insertDatabase = `
 CREATE TABLE IF NOT EXISTS NB_DOWNLOAD_LOG(
-  id INTEGER PRIMARY KEY AUTO_INCREMENT,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
   url VARCHAR(20),
   fileName VARCHAR(20)
 )`;
