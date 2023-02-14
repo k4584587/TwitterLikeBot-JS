@@ -20,7 +20,6 @@ const app = express();
 
 app.set('port', process.env.PORT || 3001);
 
-// view engine setup
 require('dotenv').config();
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.set('views', path.join(__dirname, 'views'));
@@ -43,13 +42,12 @@ const db = new sqlite3.Database('./needon.db', sqlite3.OPEN_READWRITE, (err) => 
 const insertDatabase = `
 CREATE TABLE IF NOT EXISTS NB_DOWNLOAD_LOG(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  url VARCHAR(20),
-  fileName VARCHAR(20)
+  url TEXT,
+  fileName TEXT
 )`;
 
-
 db.serialize(() => {
-  db.each(insertDatabase);
+  db.run(insertDatabase);
 });
 
 app.use('/', indexRouter);
@@ -58,18 +56,13 @@ app.use('/auth/', authAPI);
 discordBot(discordClient, DISCORD_BOT_TOKEN, API_URL, TWITTER_ACCOUNT);
 scheduleConfig(API_URL, TWITTER_ACCOUNT);
 
-// catch 404 and forward to error handler
 app.use((req, res, next) => {
   next(createError(404));
 });
 
-// error handler
 app.use((err, req, res, next) => {
-  // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
   res.status(err.status || 500);
   res.render('error');
 });
