@@ -1,75 +1,72 @@
 const axios = require('axios');
+const { Client, Intents, MessageAttachment } = require('discord.js');
 
 async function discordBot(client, token, apiURL, twitterId) {
-    client.on('ready', () => {
-        console.log(`Logged in as ${client.user.tag}!`);
-    });
+  client.on('ready', () => {
+    console.log(`Logged in as ${client.user.tag}!`);
+  });
 
-    client.on('message', async message => {
+  client.on('interactionCreate', async interaction => {
+    if (!interaction.isCommand()) return;
 
-        console.log("mssage : " + message.content);
+    if (interaction.commandName === 'n') {
+      const size = interaction.options.get('개수')?.value || 5;
 
-        if (message.content.startsWith('!n ')) {
-            const size = message.content.split(' ')[1];
+      try {
+        const response = await axios.get(
+          `${apiURL}/twitter/likes?twitterId=${twitterId}&type=down&size=${Math.max(size, 5)}`
+        );
 
-            try {
-                const response = await axios.get(
-                    `${apiURL}/twitter/likes?twitterId=${twitterId}&type=down&size=${Math.max(size, 5)}`
-                );
+        const data = response.data.url;
 
-                const data = response.data.url;
-                await message.channel.send('가져오는중...');
+        await interaction.deferReply();
 
-                for (let i = 0; i < Math.min(data.length, size); i++) {
-                    await message.channel.send(data[i]);
-                }
-
-                await message.channel.send('가져오기 완료!');
-            } catch (error) {
-                console.error(error);
-                await message.channel.send(`error ${error.message}`);
-            }
+        for (let i = 0; i < Math.min(data.length, size); i++) {
+          const attachment = new MessageAttachment(data[i]);
+          await interaction.followUp({ files: [attachment] });
         }
 
-        if (message.content.startsWith('!r')) {
+        await interaction.followUp('가져오기 완료!');
+      } catch (error) {
+        console.error(error);
+        await interaction.followUp(`error ${error.message}`);
+      }
+    }
 
-            try {
-                const response = await axios.get(
-                    `${apiURL}/twitter/likes?twitterId=${twitterId}&type=down&size=5`
-                );
+    if (interaction.commandName === 'r') {
+      try {
+        const response = await axios.get(
+          `${apiURL}/twitter/likes?twitterId=${twitterId}&type=down&size=5`
+        );
 
-                const data = response.data.url;
-                await message.channel.send('가져오는중...');
-                await message.channel.send(data[0]);
-                await message.channel.send('가져오기 완료!');
-            } catch (error) {
-                console.error(error);
-                await message.channel.send(`error ${error.message}`);
-            }
+        const data = response.data.url;
 
-        }
+        const attachment = new MessageAttachment(data[0]);
+        await interaction.reply({ files: [attachment] });
+      } catch (error) {
+        console.error(error);
+        await interaction.reply(`error ${error.message}`);
+      }
+    }
 
-        if (message.content.includes("https://twitter.com/")) {
-            try {
-                 message.channel.send("다운로드중...");
+    if (interaction.commandName === 'down') {
+      const url = interaction.options.get('url').value;
 
-                const response = await axios.get(
-                    `${apiURL}/twitter/likes?twitterId=${twitterId}&type=url&url=${message.content}`
-                );
+      try {
+        const response = await axios.get(
+          `${apiURL}/twitter/likes?twitterId=${twitterId}&type=url&url=${url}`
+        );
 
-                console.info(response.data.resultMessage);
-                message.channel.send(response.data.resultMessage);
-            } catch (error) {
-                console.error(error);
-                await message.channel.send(`error ${error.message}`);
-            }
+        const attachment = new MessageAttachment(response.data.url);
+        await interaction.reply({ files: [attachment] });
+      } catch (error) {
+        console.error(error);
+        await interaction.reply(`error ${error.message}`);
+      }
+    }
+  });
 
-        }
-
-
-    });
-
-    client.login(token);
+  await client.login(token);
 }
 
 module.exports = discordBot;

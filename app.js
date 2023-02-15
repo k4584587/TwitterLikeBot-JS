@@ -9,12 +9,16 @@ const indexRouter = require('./routes/index');
 const twitterBotAPI = require('./routes/twitter');
 const authAPI = require('./routes/auth');
 const Discord = require('discord.js');
-const discordClient = new Discord.Client();
+const { Client, Intents } = require('discord.js');
+const discordClient = new Client({
+    intents: [Intents.FLAGS.GUILD_MESSAGES],
+    debug: true
+});
 const discordBot = require('./service/discord.js');
 const scheduleConfig = require('./service/schedule.js');
 const sqlite3 = require('sqlite3');
 
-const { DISCORD_BOT_TOKEN, API_URL, TWITTER_ACCOUNT } = process.env;
+const { DISCORD_BOT_TOKEN, API_URL, TWITTER_ACCOUNT, CLIENT_ID, GUILD_ID} = process.env;
 
 const app = express();
 
@@ -53,6 +57,7 @@ db.serialize(() => {
 app.use('/', indexRouter);
 app.use('/twitter', twitterBotAPI);
 app.use('/auth/', authAPI);
+
 discordBot(discordClient, DISCORD_BOT_TOKEN, API_URL, TWITTER_ACCOUNT);
 scheduleConfig(API_URL, TWITTER_ACCOUNT);
 
@@ -70,5 +75,8 @@ app.use((err, req, res, next) => {
 const server = app.listen(app.get('port'), () => {
   console.log(`Express server listening on port ${server.address().port}`);
 });
+
+
+discordClient.on('debug', console.log);
 
 module.exports = app;
